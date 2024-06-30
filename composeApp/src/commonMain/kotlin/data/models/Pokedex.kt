@@ -11,7 +11,7 @@ data class Pokedex(
     @SerialName("next")
     val next: String = "",
     @SerialName("previous")
-    val previous: String = "none",
+    val previous: String = "ninguno",
     @SerialName("results")
     val results: List<PokedexResults> = emptyList()
 )
