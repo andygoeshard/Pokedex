@@ -4,9 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import ui.viewmodel.PokedexViewModel
-import androidx.compose.runtime.LaunchedEffect
-import cache.Database
-import org.koin.compose.getKoin
 
 @Composable
 fun PokedexScreen(viewModel: PokedexViewModel){
@@ -18,8 +15,8 @@ fun PokedexScreen(viewModel: PokedexViewModel){
             PiProgressIndicator()
         }
         is PokedexViewModel.HomeScreenState.Success -> {
-            val products = (homeScreenState as PokedexViewModel.HomeScreenState.Success).responseData.results
-            PokemonCard(products)
+            val pokemones = (homeScreenState as PokedexViewModel.HomeScreenState.Success).responseData.results
+            PokemonCard(pokemones)
         }
         is PokedexViewModel.HomeScreenState.Error -> {
             //show Error
