@@ -1,0 +1,19 @@
+import data.models.PokedexResults;
+import kotlin.collections.List;
+
+CREATE TABLE Pokemon(
+    count INTEGER NOT NULL,
+    next TEXT NOT NULL,
+    previous TEXT NOT NULL,
+    results TEXT AS List<PokedexResults> NOT NULL
+);
+
+getAll:
+SELECT * FROM Pokemon;
+
+insertPokedex:
+INSERT INTO Pokemon (count, next, previous, results)
+VALUES (?, ?, ?, ?);
+
+deleteAll:
+DELETE FROM Pokemon;

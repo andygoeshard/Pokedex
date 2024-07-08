@@ -5,15 +5,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import ui.viewmodel.PokedexViewModel
 import androidx.compose.runtime.LaunchedEffect
+import cache.Database
 import org.koin.compose.getKoin
 
 @Composable
-fun PokedexScreen(){
-    val viewModel: PokedexViewModel = getKoin().get()
+fun PokedexScreen(viewModel: PokedexViewModel){
+
     val homeScreenState by viewModel.homeViewState.collectAsState()
-    LaunchedEffect(Unit) {
-        viewModel.getClient()
-    }
+
     when (homeScreenState) {
         is PokedexViewModel.HomeScreenState.Loading -> {
             PiProgressIndicator()

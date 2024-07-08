@@ -1,8 +1,11 @@
 package ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import cache.Database
 import data.models.Pokedex
 import data.network.ApiStatus
+import di.networkModule
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -16,26 +19,47 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import org.koin.compose.getKoin
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class PokedexViewModel() {
+class PokedexViewModel(
+    private val httpClient: HttpClient,
+    private val database: Database
+): ViewModel() {
 
     private val _homeState = MutableStateFlow(HomeState())
     private val _homeViewState: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState.Loading)
     val homeViewState = _homeViewState.asStateFlow()
-    val _isLoading = MutableStateFlow(true)
+    private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
 
-    private val httpClient = HttpClient() {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                coerceInputValues = true
-            })
+    init{
+        viewModelScope.launch {
+            try{
+                getClient()
+            }
+            catch (e: Exception){
+                loadPokedex()
+            }
         }
     }
 
-    suspend fun getClient(url: String = "https://pokeapi.co/api/v2/pokemon?limit=200&offset=0") {
-        val response = httpClient.get(url).body<Pokedex>()
+    suspend fun getClient(urls: String = "https://pokeapi.co/api/v2/pokemon?limit=200&offset=0") {
+        val response = httpClient.get(urls).body<Pokedex>()
+        _homeState.update{it.copy(isLoading = false, errorMessage = "", responseData = response)}
+        _homeViewState.value = _homeState.value.toUiState()
+        if(_homeState.value.responseData != null){
+            savePokedex(response)
+        }
+    }
+
+    suspend fun savePokedex(pokedex: Pokedex){
+        database.update(pokedex)
+    }
+
+    suspend fun loadPokedex(){
+        val response = database.getAll()
         _homeState.update{it.copy(isLoading = false, errorMessage = "", responseData = response)}
         _homeViewState.value = _homeState.value.toUiState()
     }
