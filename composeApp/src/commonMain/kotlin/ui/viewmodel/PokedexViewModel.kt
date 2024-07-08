@@ -47,21 +47,30 @@ class PokedexViewModel(
 
     suspend fun getClient(urls: String = "https://pokeapi.co/api/v2/pokemon?limit=200&offset=0") {
         val response = httpClient.get(urls).body<Pokedex>()
-        _homeState.update{it.copy(isLoading = false, errorMessage = "", responseData = response)}
-        _homeViewState.value = _homeState.value.toUiState()
-        if(_homeState.value.responseData != null){
+        if(response != null){
+            _homeState.update{it.copy(isLoading = false, errorMessage = "", responseData = response)}
+            _homeViewState.value = _homeState.value.toUiState()
             savePokedex(response)
         }
     }
 
-    suspend fun savePokedex(pokedex: Pokedex){
+    private fun savePokedex(pokedex: Pokedex){
+        database.clearDatabase()
         database.update(pokedex)
     }
 
-    suspend fun loadPokedex(){
+    private fun loadPokedex(){
         val response = database.getAll()
-        _homeState.update{it.copy(isLoading = false, errorMessage = "", responseData = response)}
-        _homeViewState.value = _homeState.value.toUiState()
+        if(response != null) {
+            _homeState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "",
+                    responseData = response
+                )
+            }
+            _homeViewState.value = _homeState.value.toUiState()
+        }
     }
 
 
