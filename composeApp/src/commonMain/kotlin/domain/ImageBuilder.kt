@@ -1,3 +1,5 @@
+package domain
+
 object ImageBuilder{
     fun buildPokemonImageByUrl(detailUrl: String): String {
         val pokemonId = detailUrl.split('/')[6]
